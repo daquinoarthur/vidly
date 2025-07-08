@@ -27,8 +27,24 @@ app.post("/api/genres", (req, res) => {
     name: req.body.name,
   };
   genres.push(genre);
-  res.send(genre);
   res.status(201).send(genre);
+});
+
+app.put("/api/genres/:id", (req, res) => {
+  const { id: genreId } = req.params;
+  const genre = genres.find((genre) => genre.id === parseInt(genreId));
+  if (!genre)
+    return res.status(404).send(`Genre with the id ${genreId} was not found`);
+
+  const { error } = validateGenre(req.body);
+  if (error)
+    return res
+      .status(400)
+      .send(error.details.map((detail) => detail.message).join(", "));
+
+  genre.name = req.body.name;
+
+  res.status(200).send(genre);
 });
 
 function validateGenre(genre) {
